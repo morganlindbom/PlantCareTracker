@@ -12,6 +12,9 @@ namespace PlantCareTracker
 
             while (true)
             {
+                string title = "Plant Care Tracker";
+                Console.WriteLine(  title  );
+                
                 Console.WriteLine("\n1. Add Plant");
                 Console.WriteLine("2. View Plants");
                 Console.WriteLine("3. Delete Plant");
