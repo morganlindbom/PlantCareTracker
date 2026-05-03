@@ -14,6 +14,11 @@ namespace PlantCareTracker
             {
                 Console.WriteLine("\n1. Add Plant");
                 Console.WriteLine("2. View Plants");
+                Console.WriteLine("3. Delete Plant");
+                Console.WriteLine("4. Search Plant");
+                Console.WriteLine("5. Log Watering");
+                Console.WriteLine("6. View Watering");
+                Console.WriteLine("7. Reminders");
                 Console.WriteLine("0 Exit");
             
 
@@ -55,6 +60,39 @@ namespace PlantCareTracker
                         break;
 
                     case "3":
+                        Console.Write("Enter ID: ");
+                        if (!plantService.DeletePlant(Console.ReadLine()))
+                            Console.WriteLine("Plant not found");
+                        break;
+
+                    case "4":
+                        Console.Write("Search name: ");
+                        var results = plantService.SearchPlant(Console.ReadLine());
+                        foreach (var p in results)
+                            Console.WriteLine($"{p.Name} ({p.PlantId})");
+                        break;
+
+                    case "5":
+                        Console.Write("Plant ID: ");
+                        string id = Console.ReadLine();
+
+                        Console.Write("Notes: ");
+                        string notes = Console.ReadLine();
+
+                        plantService.LogWatering(id, notes);
+                        Console.WriteLine("Watering logged!");
+                        break;
+
+                    case "6":
+                        foreach (var r in plantService.GetAllLogs())
+                            Console.WriteLine($"{r.PlantId} - {r.Date}");
+                        break;
+
+                    case "7":
+                        plantService.ShowReminders();
+                        break;
+
+                    case "0":
                         return;
                 }
             }
