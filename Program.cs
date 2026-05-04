@@ -134,10 +134,12 @@ namespace PlantCareTracker
             string name = ConsoleHelper.ReadRequiredInput("Name");
             string location = ConsoleHelper.ReadRequiredInput("Location");
             int days = ConsoleHelper.ReadIntInput("Watering days");
+            string type = ConsoleHelper.ReadRequiredInput("Type");
 
             try
             {
-                plantService.AddPlant(name, location, days);
+                plantService.AddPlant(name, location, days, type);
+
                 Console.WriteLine("\nPlant added\n");
             }
             catch (Exception ex)
@@ -166,14 +168,18 @@ namespace PlantCareTracker
             Console.WriteLine();
 
             // ✔ HEADER (ingen p här!)
-            Console.WriteLine($"{"ID",-10} | {ConsoleHelper.CenterText("Name", 12)} | {ConsoleHelper.CenterText("Location", 12)} | Watering");
-            Console.WriteLine(new string('-', 60));
+            Console.WriteLine( $"{"ID",-10} | {ConsoleHelper.CenterText("Name", 12)} | {ConsoleHelper.CenterText("Location", 12)} | " +
+                               $"{ConsoleHelper.CenterText("Type", 10)} | {ConsoleHelper.CenterText("Watering", 15)}");
+            Console.WriteLine(new string('-', 73));
 
             foreach (var p in plants)
             {
                 Console.WriteLine(
-                    $"{p.PlantId,-10} | {ConsoleHelper.CenterText(p.Name, 12)} | {ConsoleHelper.CenterText(p.Location, 12)} | Every {p.WateringDays} days"
-                );
+                    $"{p.PlantId,-10} | " +
+                    $"{ConsoleHelper.CenterText(p.Name, 12)} | " +
+                    $"{ConsoleHelper.CenterText(p.Location, 12)} | " +
+                    $"{ConsoleHelper.CenterText(p.Type, 10)} | " +
+                    $"{ConsoleHelper.CenterText($"Every {p.WateringDays} days", 15)} |");
             }
 
             Console.WriteLine();

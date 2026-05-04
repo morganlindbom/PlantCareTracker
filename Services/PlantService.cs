@@ -8,13 +8,13 @@ namespace PlantCareTracker.Services
     {
         private readonly List<Plant> plants;
         private int plantCounter = 1;
-
+        //*****************************************************************************
         public PlantService(List<Plant> plants)
         {
             this.plants = plants ?? new List<Plant>();
             InitializeCounter();
         }
-
+        //*****************************************************************************
         private void InitializeCounter()
         {
             if (!plants.Any())
@@ -36,44 +36,33 @@ namespace PlantCareTracker.Services
                 plantCounter = numbers.Max() + 1;
             }
         }
-
+        //*****************************************************************************
         private string GeneratePlantId()
         {
             return $"PLANT-{plantCounter++.ToString("D3")}";
         }
-
+        //*****************************************************************************
         public List<Plant> GetAllPlants()
         {
             return plants;
         }
-
+        //*****************************************************************************
         // AddPlant()
 
-        public void AddPlant(string name, string location, int wateringDays)
-        /*
-        Creates and adds a new plant.
-
-        This method is responsible for creating the Plant object,
-        assigning an ID, and storing it in the list.
-        */
+        public void AddPlant(string name, string location, int wateringDays, string type)
         {
-            if (string.IsNullOrWhiteSpace(name))
-                throw new ArgumentException("Name cannot be empty.");
-
-            if (wateringDays < 1)
-                throw new ArgumentException("Watering days must be at least 1.");
-
             var plant = new Plant
             {
                 PlantId = GeneratePlantId(),
                 Name = name,
                 Location = location,
-                WateringDays = wateringDays
+                WateringDays = wateringDays,
+                Type = type
             };
 
             plants.Add(plant);
         }
-
+        //*****************************************************************************
         public bool DeletePlant(string id)
         {
             var plant = plants.FirstOrDefault(p => p.PlantId == id);
@@ -84,7 +73,7 @@ namespace PlantCareTracker.Services
             plants.Remove(plant);
             return true;
         }
-
+        //*****************************************************************************
         public List<Plant> SearchPlant(string name)
         {
             if (string.IsNullOrWhiteSpace(name))
@@ -95,5 +84,33 @@ namespace PlantCareTracker.Services
                             p.Name.Contains(name, StringComparison.OrdinalIgnoreCase))
                 .ToList();
         }
+        //*****************************************************************************
+        // GetPlantsByType()
+
+        public List<Plant> GetPlantsByType(string type)
+        /*
+        Returns all plants matching a specific type.
+        */
+        {
+            return plants
+                .Where(p => p.Type != null &&
+                            p.Type.Equals(type, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+        }
+        //*****************************************************************************
+        // CountByType()
+
+        public Dictionary<string, int> CountByType()
+        /*
+        Counts how many plants exist for each type.
+        */
+        {
+            return plants
+                .GroupBy(p => p.Type)
+                .ToDictionary(g => g.Key, g => g.Count());
+        }
+        //*****************************************************************************
+
+
     }
 }

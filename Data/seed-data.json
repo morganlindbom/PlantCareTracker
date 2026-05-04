@@ -4,47 +4,123 @@
       "plantId": "PLANT-001",
       "name": "Monstera",
       "location": "Vardagsrum",
-      "wateringDays": 7
+      "wateringDays": 7,
+      "type": "Tropical"
     },
     {
       "plantId": "PLANT-002",
       "name": "Fredskalla",
       "location": "Sovrum",
-      "wateringDays": 5
+      "wateringDays": 5,
+      "type": "Tropical"
     },
     {
       "plantId": "PLANT-003",
       "name": "Fikus",
       "location": "Kontor",
-      "wateringDays": 10
+      "wateringDays": 10,
+      "type": "Tree"
     },
     {
       "plantId": "PLANT-004",
       "name": "Basilika",
       "location": "Kök",
-      "wateringDays": 2
+      "wateringDays": 2,
+      "type": "Herb"
+    },
+    {
+      "plantId": "PLANT-005",
+      "name": "Kaktus",
+      "location": "Fönster",
+      "wateringDays": 14,
+      "type": "Succulent"
+    },
+    {
+      "plantId": "PLANT-006",
+      "name": "Orkidé",
+      "location": "Vardagsrum",
+      "wateringDays": 6,
+      "type": "Flower"
+    },
+    {
+      "plantId": "PLANT-007",
+      "name": "Aloe Vera",
+      "location": "Badrum",
+      "wateringDays": 12,
+      "type": "Succulent"
+    },
+    {
+      "plantId": "PLANT-008",
+      "name": "Mynta",
+      "location": "Kök",
+      "wateringDays": 3,
+      "type": "Herb"
+    },
+    {
+      "plantId": "PLANT-009",
+      "name": "Palettblad",
+      "location": "Sovrum",
+      "wateringDays": 4,
+      "type": "Tropical"
+    },
+    {
+      "plantId": "PLANT-010",
+      "name": "Citronträd",
+      "location": "Balkong",
+      "wateringDays": 8,
+      "type": "Tree"
     }
   ],
   "wateringRecords": [
     {
       "plantId": "PLANT-001",
       "date": "2026-05-01T08:00:00",
-      "notes": "Vattnad ordentligt efter helgen"
+      "notes": "Vattnad ordentligt"
     },
     {
       "plantId": "PLANT-002",
       "date": "2026-05-03T09:15:00",
-      "notes": "Lite vatten i jorden"
+      "notes": "Lite vatten"
     },
     {
       "plantId": "PLANT-003",
       "date": "2026-04-28T18:30:00",
-      "notes": "Kontrollerade jordfuktigheten"
+      "notes": "Kontrollerad jord"
     },
     {
       "plantId": "PLANT-004",
       "date": "2026-05-04T07:45:00",
-      "notes": "Daglig bevattning för kryddväxt"
+      "notes": "Daglig bevattning"
+    },
+    {
+      "plantId": "PLANT-005",
+      "date": "2026-04-20T12:00:00",
+      "notes": "Tål torka"
+    },
+    {
+      "plantId": "PLANT-006",
+      "date": "2026-05-02T10:20:00",
+      "notes": "Duschat blad"
+    },
+    {
+      "plantId": "PLANT-007",
+      "date": "2026-04-25T11:00:00",
+      "notes": "Minimal vattning"
+    },
+    {
+      "plantId": "PLANT-008",
+      "date": "2026-05-04T09:00:00",
+      "notes": "Behöver mycket vatten"
+    },
+    {
+      "plantId": "PLANT-009",
+      "date": "2026-05-02T14:30:00",
+      "notes": "Bra tillväxt"
+    },
+    {
+      "plantId": "PLANT-010",
+      "date": "2026-04-30T16:45:00",
+      "notes": "Utomhus vattning"
     }
   ]
 }
