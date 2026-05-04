@@ -1,26 +1,29 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using System.Threading.Tasks;
+﻿
+// PlantService.cs
+
 using PlantCareTracker.Models;
 
 namespace PlantCareTracker.Services
 {
     public class PlantService
     {
+        private readonly List<Plant> plants = new();
+        private int plantCounter = 1;
 
-        private List<Plant> plants = new List<Plant>();
-        private List<WateringRecord> records = new List<WateringRecord>();
+        private string GeneratePlantId()
+        {
+            return $"PLANT-{plantCounter++.ToString("D3")}";
+        }
 
         public void AddPlant(Plant plant)
         {
+            plant.PlantId = GeneratePlantId();
             plants.Add(plant);
         }
 
         public List<Plant> GetAllPlants()
         {
+            // IMPORTANT: return SAME list (shared reference)
             return plants;
         }
 
@@ -29,9 +32,7 @@ namespace PlantCareTracker.Services
             var plant = plants.FirstOrDefault(p => p.PlantId == id);
 
             if (plant == null)
-            {
                 return false;
-            }
 
             plants.Remove(plant);
             return true;
@@ -39,60 +40,14 @@ namespace PlantCareTracker.Services
 
         public List<Plant> SearchPlant(string name)
         {
+            if (string.IsNullOrWhiteSpace(name))
+                return new List<Plant>();
+
             return plants
-                .Where(p => p.Name.ToLower().Contains(name.ToLower()))
+                .Where(p => !string.IsNullOrWhiteSpace(p.Name) &&
+                            p.Name.Contains(name, StringComparison.OrdinalIgnoreCase))
                 .ToList();
-
-        }
-
-        public void LogWatering(string plantId, string notes)
-        {
-            records.Add(new WateringRecord
-            {
-                PlantId = plantId,
-                Date = DateTime.Now,
-                Notes = notes
-            });
-        }
-
-
-        public List<WateringRecord> GetAllLogs()
-        {
-            return records;
-        }
-
-        public List<WateringRecord> GetLogsForPlant(string plantId)
-        {
-            return records
-                .Where(r => r.PlantId == plantId)
-                .ToList();
-        }
-
-        public void ShowReminders()
-        {
-
-            foreach (var plant in plants)
-            {
-                var last = records
-                    .Where(r => r.PlantId == plant.PlantId)
-                    .OrderByDescending(records => records.Date)
-                    .FirstOrDefault();
-
-                if (last == null)
-                {
-                    Console.WriteLine($"{plant.Name}: Never watered");
-                    continue;
-                }
-
-                int days = (DateTime.Now - last.Date).Days;
-
-                if (days >= plant.WateringDays)
-                {
-                    Console.WriteLine($"{plant.Name}: Needs water!");
-                }
-
-
-            }
         }
     }
 }
+
