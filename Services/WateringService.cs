@@ -1,6 +1,7 @@
 ﻿// WateringService.cs
 
 using PlantCareTracker.Models;
+using PlantCareTracker.Utils;
 
 namespace PlantCareTracker.Services
 {
@@ -39,10 +40,7 @@ namespace PlantCareTracker.Services
 
         public void ShowReminders()
         /*
-        Displays detailed watering reminders.
-
-        Shows last watering date, days since last watering,
-        and whether the plant needs water.
+        Displays detailed watering reminders with consistent layout.
         */
         {
             if (!plants.Any())
@@ -51,7 +49,11 @@ namespace PlantCareTracker.Services
                 return;
             }
 
-            Console.WriteLine("\n--- Watering Status ---\n");
+            const int width = 40;
+
+            Console.WriteLine();
+            Console.WriteLine(ConsoleHelper.CenterText("--- Watering Status ---", width));
+            Console.WriteLine(new string('-', width));
 
             foreach (var plant in plants)
             {
@@ -62,28 +64,34 @@ namespace PlantCareTracker.Services
 
                 DateTime? lastDate = last?.Date;
 
-                Console.WriteLine($"{plant.Name} ({plant.Location})");
+                Console.WriteLine(ConsoleHelper.CenterText($"{plant.Name} ({plant.Location})", width));
 
                 if (lastDate == null)
                 {
-                    Console.WriteLine("Last watered: Never");
-                    Console.WriteLine("Status: Needs water\n");
+                    Console.WriteLine(ConsoleHelper.CenterText("Last watered: Never", width));
+                    Console.WriteLine(ConsoleHelper.CenterText("Status: Needs water 💧", width));
+                    Console.WriteLine(new string('-', width));
                     continue;
                 }
 
                 int daysSince = (DateTime.Now - lastDate.Value).Days;
+                string dayText = daysSince == 1 ? "day" : "days";
 
-                Console.WriteLine($"Last watered: {daysSince} days ago");
+                Console.WriteLine(ConsoleHelper.CenterText($"Last watered: {daysSince} {dayText} ago", width));
 
                 if (plant.NeedsWater(lastDate))
                 {
-                    Console.WriteLine("Status: Needs water\n");
+                    Console.WriteLine(ConsoleHelper.CenterText("Status: Needs water 💧", width));
                 }
                 else
                 {
-                    Console.WriteLine("Status: OK\n");
+                    Console.WriteLine(ConsoleHelper.CenterText("Status: OK 👍", width));
                 }
+
+                Console.WriteLine(new string('-', width));
             }
+
+            Console.WriteLine();
         }
     }
 }
