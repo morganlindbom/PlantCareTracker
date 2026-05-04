@@ -42,15 +42,15 @@ namespace PlantCareTracker.Services
             return $"PLANT-{plantCounter++.ToString("D3")}";
         }
 
+        public List<Plant> GetAllPlants()
+        {
+            return plants;
+        }
+
         public void AddPlant(Plant plant)
         {
             plant.PlantId = GeneratePlantId();
             plants.Add(plant);
-        }
-
-        public List<Plant> GetAllPlants()
-        {
-            return plants;
         }
 
         public bool DeletePlant(string id)

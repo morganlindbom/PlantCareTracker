@@ -13,48 +13,29 @@ namespace PlantCareTracker
         {
             string path = Path.Combine("Data", "seed-data.json");
 
-            List<Plant> plants = new();
-            List<WateringRecord> records = new();
+            var dataService = new DataService();
 
-            if (File.Exists(path))
-            {
-                try
-                {
-                    string json = File.ReadAllText(path);
-
-                    var options = new JsonSerializerOptions
-                    {
-                        PropertyNameCaseInsensitive = true
-                    };
-
-                    var data = JsonSerializer.Deserialize<JsonElement>(json);
-
-                    plants = JsonSerializer.Deserialize<List<Plant>>(
-                        data.GetProperty("plants").GetRawText(),
-                        options
-                    ) ?? new List<Plant>();
-
-                    records = JsonSerializer.Deserialize<List<WateringRecord>>(
-                        data.GetProperty("wateringRecords").GetRawText(),
-                        options
-                    ) ?? new List<WateringRecord>();
-                }
-                catch
-                {
-                    Console.WriteLine("Error reading data file. Starting with empty lists.");
-                    plants = new List<Plant>();
-                    records = new List<WateringRecord>();
-                }
-            }
-            else
-            {
-                Console.WriteLine("Data file not found. Starting with empty lists.");
-            }
+            var (plants, records) = dataService.LoadData(path);
 
             var plantService = new PlantService(plants);
             var wateringService = new WateringService(plants, records);
 
             while (true)
+            {
+                ShowMenu();
+                HandleUserChoice(GetUserChoice(), plantService, wateringService);
+
+            }
+            //*****************************************************************************
+            // ShowMenu()
+
+            static void ShowMenu()
+            /*
+            Displays the main menu in the console.
+
+            This function prints all available user options.
+            It does not return anything and is called from Main().
+            */
             {
                 Console.WriteLine();
                 Console.WriteLine("Plant Care Tracker");
@@ -67,135 +48,281 @@ namespace PlantCareTracker
                 Console.WriteLine("6. View Watering Logs");
                 Console.WriteLine("7. Reminders");
                 Console.WriteLine("0 Exit");
+            }
+            //*****************************************************************************
+            // GetUserChoice()
 
-                var input = Console.ReadLine();
+            static string GetUserChoice()
+            /*
+            Reads the user's menu choice from the console.
 
+            This function waits for user input and returns it as a string.
+            It does not validate the input, only retrieves it.
+            */
+            {
+                Console.Write("\nSelect option: ");
+                return Console.ReadLine();
+            }
+            //*****************************************************************************
+            // HandleUserChoice()
+
+            static void HandleUserChoice(
+                string input,
+                PlantService plantService,
+                WateringService wateringService
+            )
+            /*
+            Handles the user's menu selection.
+
+            This function receives the user's input and calls the correct
+            method based on the selected option.
+
+            It does not return anything, it only executes actions.
+            */
+            {
                 switch (input)
                 {
                     case "1":
-                        Console.Write("Name: ");
-                        string name = Console.ReadLine();
-
-                        Console.Write("Location: ");
-                        string location = Console.ReadLine();
-
-                        Console.Write("Watering days: ");
-                        if (!int.TryParse(Console.ReadLine(), out int days) || days < 1)
-                        {
-                            Console.WriteLine("\nInvalid input\n");
-                            break;
-                        }
-
-                        plantService.AddPlant(new Plant
-                        {
-                            Name = name,
-                            Location = location,
-                            WateringDays = days
-                        });
-
-                        Console.WriteLine("\nPlant added\n");
+                        AddPlant(plantService);
                         break;
 
                     case "2":
-                        var plantList = plantService.GetAllPlants();
-
-                        if (!plantList.Any())
-                        {
-                            Console.WriteLine("\nNo plants found\n");
-                            break;
-                        }
-
-                        Console.WriteLine();
-
-                        foreach (var p in plantList)
-                        {
-                            Console.WriteLine($"{p.PlantId} | {p.Name} | {p.Location} | Every {p.WateringDays} days");
-                        }
-
-                        Console.WriteLine();
+                        ViewPlants(plantService);
                         break;
 
                     case "3":
-                        Console.Write("Enter ID: ");
-                        string deleteId = Console.ReadLine();
-
-                        if (!plantService.DeletePlant(deleteId))
-                            Console.WriteLine("\nPlant not found\n");
-                        else
-                            Console.WriteLine("\nPlant deleted\n");
-
+                        DeletePlant(plantService);
                         break;
 
                     case "4":
-                        Console.Write("Search name: ");
-                        string search = Console.ReadLine();
-
-                        var results = plantService.SearchPlant(search);
-
-                        if (!results.Any())
-                        {
-                            Console.WriteLine("\nNo matching plants found\n");
-                            break;
-                        }
-
-                        Console.WriteLine();
-
-                        foreach (var p in results)
-                        {
-                            Console.WriteLine($"{p.PlantId} | {p.Name} | {p.Location} | Every {p.WateringDays} days");
-                        }
-
-                        Console.WriteLine();
+                        SearchPlant(plantService);
                         break;
 
                     case "5":
-                        Console.Write("Plant ID: ");
-                        string id = Console.ReadLine();
-
-                        Console.Write("Notes: ");
-                        string notes = Console.ReadLine();
-
-                        if (wateringService.LogWatering(id, notes))
-                            Console.WriteLine("\nWatering logged!\n");
-                        else
-                            Console.WriteLine("\nPlant not found\n");
-
+                        LogWatering(wateringService);
                         break;
 
                     case "6":
-                        var logs = wateringService.GetAllLogs();
-
-                        if (!logs.Any())
-                        {
-                            Console.WriteLine("\nNo watering records found\n");
-                            break;
-                        }
-
-                        Console.WriteLine();
-
-                        foreach (var r in logs)
-                        {
-                            Console.WriteLine($"{r.PlantId}");
-                            Console.WriteLine($"Date: {r.Date}");
-                            Console.WriteLine($"Notes: {r.Notes}\n");
-                        }
-
+                        ViewLogs(wateringService);
                         break;
 
                     case "7":
-                        Console.WriteLine();
-                        wateringService.ShowReminders();
-                        Console.WriteLine();
+                        ShowReminders(wateringService);
                         break;
 
                     case "0":
-                        return;
+                        Environment.Exit(0);
+                        break;
 
                     default:
                         Console.WriteLine("\nInvalid choice\n");
                         break;
                 }
             }
+            //*****************************************************************************
+            // AddPlant()
+
+            static void AddPlant(PlantService plantService)
+            /*
+            Adds a new plant to the system.
+
+            This function collects user input, validates it,
+            creates a new Plant object, and sends it to the service.
+            */
+            {
+                Console.Write("Name: ");
+                string name = Console.ReadLine();
+
+                Console.Write("Location: ");
+                string location = Console.ReadLine();
+
+                Console.Write("Watering days: ");
+                if (!int.TryParse(Console.ReadLine(), out int days) || days < 1)
+                {
+                    Console.WriteLine("\nInvalid input\n");
+                    return;
+                }
+
+                plantService.AddPlant(new Plant
+                {
+                    Name = name,
+                    Location = location,
+                    WateringDays = days
+                });
+
+                Console.WriteLine("\nPlant added\n");
+            }
+            //*****************************************************************************
+            // ViewPlants()
+
+            static void ViewPlants(PlantService plantService)
+            /*
+            Displays all plants in a formatted table.
+
+            Uses column alignment to improve readability.
+            */
+            {
+                var plants = plantService.GetAllPlants();
+
+                if (!plants.Any())
+                {
+                    Console.WriteLine("\nNo plants found\n");
+                    return;
+                }
+
+                Console.WriteLine();
+
+                // ✔ HEADER (ingen p här!)
+                Console.WriteLine($"{"ID",-10} | {CenterText("Name", 12)} | {CenterText("Location", 12)} | Watering");
+                Console.WriteLine(new string('-', 60));
+
+                foreach (var p in plants)
+                {
+                    Console.WriteLine(
+                        $"{p.PlantId,-10} | {CenterText(p.Name, 12)} | {CenterText(p.Location, 12)} | Every {p.WateringDays} days"
+                    );
+                }
+
+                Console.WriteLine();
+            }
+            //*****************************************************************************
+            // DeletePlant()
+
+            static void DeletePlant(PlantService plantService)
+            /*
+            Deletes a plant by ID.
+
+            Prompts the user for an ID and attempts to remove
+            the plant from the system.
+            */
+            {
+                Console.Write("Enter ID: ");
+                string id = Console.ReadLine();
+
+                if (!plantService.DeletePlant(id))
+                    Console.WriteLine("\nPlant not found\n");
+                else
+                    Console.WriteLine("\nPlant deleted\n");
+            }
+            //*****************************************************************************
+            // SearchPlant()
+
+            static void SearchPlant(PlantService plantService)
+            /*
+            Searches for plants by name.
+
+            Allows partial matching and prints all matching results.
+            */
+            {
+                Console.Write("Search name: ");
+                string search = Console.ReadLine();
+
+                var results = plantService.SearchPlant(search);
+
+                if (!results.Any())
+                {
+                    Console.WriteLine("\nNo matching plants found\n");
+                    return;
+                }
+
+                Console.WriteLine();
+
+                foreach (var p in results)
+                {
+                    Console.WriteLine($"{p.PlantId} | {p.Name} | {p.Location} | Every {p.WateringDays} days");
+                }
+
+                Console.WriteLine();
+            }
+            //*****************************************************************************
+            // LogWatering()
+
+            static void LogWatering(WateringService wateringService)
+            /*
+            Logs a watering event for a plant.
+
+            Checks if the plant exists and adds a watering record
+            with the current date and user notes.
+            */
+            {
+                Console.Write("Plant ID: ");
+                string id = Console.ReadLine();
+
+                Console.Write("Notes: ");
+                string notes = Console.ReadLine();
+
+                if (wateringService.LogWatering(id, notes))
+                    Console.WriteLine("\nWatering logged!\n");
+                else
+                    Console.WriteLine("\nPlant not found\n");
+            }
+            //*****************************************************************************
+            // ViewLogs()
+
+            static void ViewLogs(WateringService wateringService)
+            /*
+            Displays all watering records.
+
+            Prints plant ID, date, and notes for each record.
+            */
+            {
+                var logs = wateringService.GetAllLogs();
+
+                if (!logs.Any())
+                {
+                    Console.WriteLine("\nNo watering records found\n");
+                    return;
+                }
+
+                Console.WriteLine();
+
+                foreach (var r in logs)
+                {
+                    Console.WriteLine($"{r.PlantId}");
+                    Console.WriteLine($"Date: {r.Date}");
+                    Console.WriteLine($"Notes: {r.Notes}\n");
+                }
+            }
+            //*****************************************************************************
+            // ShowReminders()
+
+            static void ShowReminders(WateringService wateringService)
+            /*
+            Displays watering reminders.
+
+            Checks all plants and prints those that need watering
+            based on last watering date and interval.
+            */
+            {
+                Console.WriteLine();
+                wateringService.ShowReminders();
+                Console.WriteLine();
+            }
+            //*****************************************************************************
+            // CenterText()
+
+            static string CenterText(string text, int width)
+            /*
+            Centers a string within a fixed width.
+
+            If the text is shorter than the width,
+            it pads spaces on both sides to center it.
+            */
+            {
+                if (string.IsNullOrEmpty(text))
+                    text = "";
+
+                int padding = width - text.Length;
+
+                if (padding <= 0)
+                    return text;
+
+                int padLeft = padding / 2 + text.Length;
+
+                return text.PadLeft(padLeft).PadRight(width);
+            }
+
+
         }
     }
 }
