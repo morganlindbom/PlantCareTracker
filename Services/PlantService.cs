@@ -111,7 +111,34 @@ namespace PlantCareTracker.Services
                 .ToDictionary(g => g.Key, g => g.Count());
         }
         //*****************************************************************************
+        // UpdateHealth()
 
+        public bool UpdateHealth(string plantId, HealthStatus status)
+        /*
+        Updates the health status of a plant by ID.
+        */
+        {
+            var plant = plants.FirstOrDefault(p => p.PlantId == plantId);
+
+            if (plant == null)
+                return false;
+
+            plant.HealthStatus = status;
+            return true;
+        }
+        //*****************************************************************************
+        // GetStrugglingPlants()
+
+        public List<Plant> GetStrugglingPlants()
+        /*
+        Returns all plants with health status "Struggling".
+        */
+        {
+            return plants
+                .Where(p => p.HealthStatus == HealthStatus.Struggling)
+                .ToList();
+        }
+        //*****************************************************************************
 
     }
 }

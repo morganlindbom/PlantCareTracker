@@ -51,6 +51,8 @@ namespace PlantCareTracker
             Console.WriteLine("5. Log Watering");
             Console.WriteLine("6. View Watering Logs");
             Console.WriteLine("7. Reminders");
+            Console.WriteLine("8. Update plant health");
+            Console.WriteLine("9. View struggling plants");
             Console.WriteLine("0 Exit");
         }
         //*****************************************************************************
@@ -114,6 +116,14 @@ namespace PlantCareTracker
                     ShowReminders(wateringService);
                     break;
 
+                case "8":
+                    UpdatePlantHealth(plantService);
+                    break;
+
+                case "9":
+                    ViewStrugglingPlants(plantService);
+                    break;
+
                 case "0":
                     Environment.Exit(0);
                     break;
@@ -167,19 +177,24 @@ namespace PlantCareTracker
 
             Console.WriteLine();
 
-            // ✔ HEADER (ingen p här!)
-            Console.WriteLine( $"{"ID",-10} | {ConsoleHelper.CenterText("Name", 12)} | {ConsoleHelper.CenterText("Location", 12)} | " +
-                               $"{ConsoleHelper.CenterText("Type", 10)} | {ConsoleHelper.CenterText("Watering", 15)}");
-            Console.WriteLine(new string('-', 73));
+            // Header with centered text
+            Console.WriteLine(
+    $"{ConsoleHelper.CenterText("ID", 15)} | {ConsoleHelper.CenterText("Name", 12)} | {ConsoleHelper.CenterText("Location", 12)} | {ConsoleHelper.CenterText("Type", 10)} | {ConsoleHelper.CenterText("Health", 12)} | {ConsoleHelper.CenterText("Watering", 20)} |"
+);
+            Console.WriteLine(new string('-', 98));
 
             foreach (var p in plants)
             {
+                string type = string.IsNullOrWhiteSpace(p.Type) ? "N/A" : p.Type;
+
                 Console.WriteLine(
-                    $"{p.PlantId,-10} | " +
+                    $"{ConsoleHelper.CenterText(p.PlantId, 15)} | " +
                     $"{ConsoleHelper.CenterText(p.Name, 12)} | " +
                     $"{ConsoleHelper.CenterText(p.Location, 12)} | " +
-                    $"{ConsoleHelper.CenterText(p.Type, 10)} | " +
-                    $"{ConsoleHelper.CenterText($"Every {p.WateringDays} days", 15)} |");
+                    $"{ConsoleHelper.CenterText(type, 10)} | " +
+                    $"{ConsoleHelper.CenterText(p.HealthStatus.ToString(), 12)} | " +
+                    $"{ConsoleHelper.CenterText($"Every {p.WateringDays} days", 20)} |"
+                );
             }
 
             Console.WriteLine();
@@ -297,5 +312,76 @@ namespace PlantCareTracker
             wateringService.ShowReminders();
             Console.WriteLine();
         }
+        //*****************************************************************************
+        // UpdatePlantHealth()
+
+        static void UpdatePlantHealth(PlantService plantService)
+        /*
+        Allows user to update plant health status.
+        */
+        {
+            Console.Write("Enter Plant ID: ");
+            string id = Console.ReadLine();
+
+            Console.WriteLine("Select health status:");
+            Console.WriteLine("1. Healthy");
+            Console.WriteLine("2. Struggling");
+            Console.WriteLine("3. Thriving");
+
+            string choice = Console.ReadLine();
+
+            HealthStatus status;
+
+            switch (choice)
+            {
+                case "1":
+                    status = HealthStatus.Healthy;
+                    break;
+                case "2":
+                    status = HealthStatus.Struggling;
+                    break;
+                case "3":
+                    status = HealthStatus.Thriving;
+                    break;
+                default:
+                    Console.WriteLine("Invalid choice");
+                    return;
+            }
+
+            if (plantService.UpdateHealth(id, status))
+                Console.WriteLine("\nHealth updated\n");
+            else
+                Console.WriteLine("\nPlant not found\n");
+        }
+        //*****************************************************************************
+        // ViewStrugglingPlants()
+
+        static void ViewStrugglingPlants(PlantService plantService)
+        /*
+        Displays all plants with "Struggling" health status.
+        */
+        {
+            var plants = plantService.GetStrugglingPlants();
+
+            if (!plants.Any())
+            {
+                Console.WriteLine();
+                Console.WriteLine($"{ConsoleHelper.CenterText("(((No struggling plants)))", 37)}");
+                return;
+            }
+            Console.WriteLine();
+            Console.WriteLine($"{ConsoleHelper.CenterText("--- Struggling Plants ---", 37)}");
+            Console.WriteLine();
+            foreach (var p in plants)
+            {
+                Console.WriteLine($"{ConsoleHelper.CenterText(p.PlantId,10)} | " +
+                                  $"{ConsoleHelper.CenterText(p.Name, 12)} | " +
+                                  $"{ConsoleHelper.CenterText(p.Location, 12)} |");
+            }
+
+            Console.WriteLine();
+        }
+        //*****************************************************************************
+
     }
 }
