@@ -39,12 +39,20 @@ namespace PlantCareTracker.Services
 
         public void ShowReminders()
         /*
-        Displays watering reminders for all plants.
+        Displays detailed watering reminders.
 
-        Uses Plant.NeedsWater() to determine if watering is required.
-        This keeps business logic inside the Plant model.
+        Shows last watering date, days since last watering,
+        and whether the plant needs water.
         */
         {
+            if (!plants.Any())
+            {
+                Console.WriteLine("No plants available.");
+                return;
+            }
+
+            Console.WriteLine("\n--- Watering Status ---\n");
+
             foreach (var plant in plants)
             {
                 var last = records
@@ -54,16 +62,26 @@ namespace PlantCareTracker.Services
 
                 DateTime? lastDate = last?.Date;
 
+                Console.WriteLine($"{plant.Name} ({plant.Location})");
+
                 if (lastDate == null)
                 {
-                    Console.WriteLine($"{plant.Name}: Never watered");
+                    Console.WriteLine("Last watered: Never");
+                    Console.WriteLine("Status: Needs water\n");
                     continue;
                 }
 
+                int daysSince = (DateTime.Now - lastDate.Value).Days;
+
+                Console.WriteLine($"Last watered: {daysSince} days ago");
+
                 if (plant.NeedsWater(lastDate))
                 {
-                    int daysSince = (DateTime.Now - lastDate.Value).Days;
-                    Console.WriteLine($"{plant.Name}: Needs water! ({daysSince} days since last)");
+                    Console.WriteLine("Status: Needs water\n");
+                }
+                else
+                {
+                    Console.WriteLine("Status: OK\n");
                 }
             }
         }
