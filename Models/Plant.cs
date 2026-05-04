@@ -9,6 +9,7 @@ namespace PlantCareTracker.Models
         public string Location { get; set; }
         public int WateringDays { get; set; }
         public string Type { get; set; }
+        public HealthStatus HealthStatus { get; set; }
 
         //*********************************************************
         // NeedsWater()

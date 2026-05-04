@@ -57,7 +57,8 @@ namespace PlantCareTracker.Services
                 Name = name,
                 Location = location,
                 WateringDays = wateringDays,
-                Type = type
+                Type = type,
+                HealthStatus = HealthStatus.Healthy
             };
 
             plants.Add(plant);
