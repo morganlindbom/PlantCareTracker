@@ -1,8 +1,9 @@
-﻿
-// Program.cs
+﻿// Program.cs
 
 using PlantCareTracker.Models;
 using PlantCareTracker.Services;
+using System.IO;
+using System.Text.Json;
 
 namespace PlantCareTracker
 {
@@ -10,8 +11,48 @@ namespace PlantCareTracker
     {
         static void Main(string[] args)
         {
-            var plantService = new PlantService();
-            var wateringService = new WateringService(plantService.GetAllPlants());
+            string path = Path.Combine("Data", "seed-data.json");
+
+            List<Plant> plants = new();
+            List<WateringRecord> records = new();
+
+            if (File.Exists(path))
+            {
+                try
+                {
+                    string json = File.ReadAllText(path);
+
+                    var options = new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    };
+
+                    var data = JsonSerializer.Deserialize<JsonElement>(json);
+
+                    plants = JsonSerializer.Deserialize<List<Plant>>(
+                        data.GetProperty("plants").GetRawText(),
+                        options
+                    ) ?? new List<Plant>();
+
+                    records = JsonSerializer.Deserialize<List<WateringRecord>>(
+                        data.GetProperty("wateringRecords").GetRawText(),
+                        options
+                    ) ?? new List<WateringRecord>();
+                }
+                catch
+                {
+                    Console.WriteLine("Error reading data file. Starting with empty lists.");
+                    plants = new List<Plant>();
+                    records = new List<WateringRecord>();
+                }
+            }
+            else
+            {
+                Console.WriteLine("Data file not found. Starting with empty lists.");
+            }
+
+            var plantService = new PlantService(plants);
+            var wateringService = new WateringService(plants, records);
 
             while (true)
             {
@@ -41,7 +82,7 @@ namespace PlantCareTracker
                         Console.Write("Watering days: ");
                         if (!int.TryParse(Console.ReadLine(), out int days) || days < 1)
                         {
-                            Console.WriteLine("Invalid input");
+                            Console.WriteLine("\nInvalid input\n");
                             break;
                         }
 
@@ -52,22 +93,26 @@ namespace PlantCareTracker
                             WateringDays = days
                         });
 
-                        Console.WriteLine("Plant added");
+                        Console.WriteLine("\nPlant added\n");
                         break;
 
                     case "2":
-                        var plants = plantService.GetAllPlants();
+                        var plantList = plantService.GetAllPlants();
 
-                        if (!plants.Any())
+                        if (!plantList.Any())
                         {
-                            Console.WriteLine("No plants found");
+                            Console.WriteLine("\nNo plants found\n");
                             break;
                         }
 
-                        foreach (var p in plants)
+                        Console.WriteLine();
+
+                        foreach (var p in plantList)
                         {
-                            Console.WriteLine($"{p.Name} ({p.PlantId})");
+                            Console.WriteLine($"{p.PlantId} | {p.Name} | {p.Location} | Every {p.WateringDays} days");
                         }
+
+                        Console.WriteLine();
                         break;
 
                     case "3":
@@ -75,9 +120,9 @@ namespace PlantCareTracker
                         string deleteId = Console.ReadLine();
 
                         if (!plantService.DeletePlant(deleteId))
-                            Console.WriteLine("Plant not found");
+                            Console.WriteLine("\nPlant not found\n");
                         else
-                            Console.WriteLine("Plant deleted");
+                            Console.WriteLine("\nPlant deleted\n");
 
                         break;
 
@@ -89,14 +134,18 @@ namespace PlantCareTracker
 
                         if (!results.Any())
                         {
-                            Console.WriteLine("No matching plants found");
+                            Console.WriteLine("\nNo matching plants found\n");
                             break;
                         }
 
+                        Console.WriteLine();
+
                         foreach (var p in results)
                         {
-                            Console.WriteLine($"{p.Name} ({p.PlantId})");
+                            Console.WriteLine($"{p.PlantId} | {p.Name} | {p.Location} | Every {p.WateringDays} days");
                         }
+
+                        Console.WriteLine();
                         break;
 
                     case "5":
@@ -107,9 +156,9 @@ namespace PlantCareTracker
                         string notes = Console.ReadLine();
 
                         if (wateringService.LogWatering(id, notes))
-                            Console.WriteLine("Watering logged!");
+                            Console.WriteLine("\nWatering logged!\n");
                         else
-                            Console.WriteLine("Plant not found");
+                            Console.WriteLine("\nPlant not found\n");
 
                         break;
 
@@ -118,29 +167,35 @@ namespace PlantCareTracker
 
                         if (!logs.Any())
                         {
-                            Console.WriteLine("No watering records found");
+                            Console.WriteLine("\nNo watering records found\n");
                             break;
                         }
 
+                        Console.WriteLine();
+
                         foreach (var r in logs)
                         {
-                            Console.WriteLine($"{r.PlantId}:\n{r.Date}\n");
+                            Console.WriteLine($"{r.PlantId}");
+                            Console.WriteLine($"Date: {r.Date}");
+                            Console.WriteLine($"Notes: {r.Notes}\n");
                         }
+
                         break;
 
                     case "7":
+                        Console.WriteLine();
                         wateringService.ShowReminders();
+                        Console.WriteLine();
                         break;
 
                     case "0":
                         return;
 
                     default:
-                        Console.WriteLine("Invalid choice");
+                        Console.WriteLine("\nInvalid choice\n");
                         break;
                 }
             }
         }
     }
 }
-

@@ -1,5 +1,4 @@
-﻿
-// PlantService.cs
+﻿// PlantService.cs
 
 using PlantCareTracker.Models;
 
@@ -7,8 +6,36 @@ namespace PlantCareTracker.Services
 {
     public class PlantService
     {
-        private readonly List<Plant> plants = new();
+        private readonly List<Plant> plants;
         private int plantCounter = 1;
+
+        public PlantService(List<Plant> plants)
+        {
+            this.plants = plants ?? new List<Plant>();
+            InitializeCounter();
+        }
+
+        private void InitializeCounter()
+        {
+            if (!plants.Any())
+                return;
+
+            var numbers = plants
+                .Select(p => p.PlantId)
+                .Where(id => !string.IsNullOrWhiteSpace(id))
+                .Select(id =>
+                {
+                    var parts = id.Split('-');
+                    return int.TryParse(parts.Last(), out int num) ? num : 0;
+                })
+                .Where(n => n > 0)
+                .ToList();
+
+            if (numbers.Any())
+            {
+                plantCounter = numbers.Max() + 1;
+            }
+        }
 
         private string GeneratePlantId()
         {
@@ -23,7 +50,6 @@ namespace PlantCareTracker.Services
 
         public List<Plant> GetAllPlants()
         {
-            // IMPORTANT: return SAME list (shared reference)
             return plants;
         }
 
@@ -50,4 +76,3 @@ namespace PlantCareTracker.Services
         }
     }
 }
-

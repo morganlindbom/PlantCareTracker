@@ -1,0 +1,50 @@
+﻿{
+  "plants": [
+    {
+      "plantId": "PLANT-001",
+      "name": "Monstera",
+      "location": "Vardagsrum",
+      "wateringDays": 7
+    },
+    {
+      "plantId": "PLANT-002",
+      "name": "Fredskalla",
+      "location": "Sovrum",
+      "wateringDays": 5
+    },
+    {
+      "plantId": "PLANT-003",
+      "name": "Fikus",
+      "location": "Kontor",
+      "wateringDays": 10
+    },
+    {
+      "plantId": "PLANT-004",
+      "name": "Basilika",
+      "location": "Kök",
+      "wateringDays": 2
+    }
+  ],
+  "wateringRecords": [
+    {
+      "plantId": "PLANT-001",
+      "date": "2026-05-01T08:00:00",
+      "notes": "Vattnad ordentligt efter helgen"
+    },
+    {
+      "plantId": "PLANT-002",
+      "date": "2026-05-03T09:15:00",
+      "notes": "Lite vatten i jorden"
+    },
+    {
+      "plantId": "PLANT-003",
+      "date": "2026-04-28T18:30:00",
+      "notes": "Kontrollerade jordfuktigheten"
+    },
+    {
+      "plantId": "PLANT-004",
+      "date": "2026-05-04T07:45:00",
+      "notes": "Daglig bevattning för kryddväxt"
+    }
+  ]
+}

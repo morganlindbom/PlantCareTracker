@@ -1,5 +1,4 @@
-﻿
-// WateringService.cs
+﻿// WateringService.cs
 
 using PlantCareTracker.Models;
 
@@ -7,12 +6,13 @@ namespace PlantCareTracker.Services
 {
     public class WateringService
     {
-        private readonly List<WateringRecord> records = new();
+        private readonly List<WateringRecord> records;
         private readonly List<Plant> plants;
 
-        public WateringService(List<Plant> plants)
+        public WateringService(List<Plant> plants, List<WateringRecord> records)
         {
-            this.plants = plants;
+            this.plants = plants ?? new List<Plant>();
+            this.records = records ?? new List<WateringRecord>();
         }
 
         public bool LogWatering(string plantId, string notes)
@@ -62,4 +62,3 @@ namespace PlantCareTracker.Services
         }
     }
 }
-

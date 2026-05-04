@@ -8,9 +8,8 @@ namespace PlantCareTracker.Models
 {
     public class WateringRecord
     {
-        public string PlantId { get; set; }
+        public string PlantId { get; set; } = string.Empty;
         public DateTime Date { get; set; }
-        public string Notes { get; set; }
-
+        public string Notes { get; set; } = string.Empty;
     }
 }
