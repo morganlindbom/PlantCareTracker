@@ -53,6 +53,7 @@ namespace PlantCareTracker
             Console.WriteLine("7. Reminders");
             Console.WriteLine("8. Update plant health");
             Console.WriteLine("9. View struggling plants");
+            Console.WriteLine("10. Most recently watered plant");
             Console.WriteLine("0 Exit");
         }
         //*****************************************************************************
@@ -122,6 +123,10 @@ namespace PlantCareTracker
 
                 case "9":
                     ViewStrugglingPlants(plantService);
+                    break;
+
+                case "10":
+                    ShowMostRecentlyWatered(wateringService);
                     break;
 
                 case "0":
@@ -378,6 +383,30 @@ namespace PlantCareTracker
                                   $"{ConsoleHelper.CenterText(p.Name, 12)} | " +
                                   $"{ConsoleHelper.CenterText(p.Location, 12)} |");
             }
+
+            Console.WriteLine();
+        }
+        //*****************************************************************************
+        // ShowMostRecentlyWatered()
+
+        static void ShowMostRecentlyWatered(WateringService wateringService)
+        /*
+        Displays the most recently watered plant.
+        */
+        {
+            var plant = wateringService.GetMostRecentlyWateredPlant();
+
+            if (plant == null)
+            {
+                Console.WriteLine("\nNo watering records found\n");
+                return;
+            }
+
+            Console.WriteLine("\n--- Most Recently Watered ---\n");
+
+            Console.WriteLine(
+                $"{plant.PlantId} | {plant.Name} | {plant.Location}"
+            );
 
             Console.WriteLine();
         }

@@ -93,5 +93,24 @@ namespace PlantCareTracker.Services
 
             Console.WriteLine();
         }
+        //*****************************************************************************
+        // GetMostRecentlyWateredPlant()
+
+        public Plant? GetMostRecentlyWateredPlant()
+        /*
+        Returns the plant that was watered most recently.
+        */
+        {
+            if (!records.Any())
+                return null;
+
+            var latestRecord = records
+                .OrderByDescending(r => r.Date)
+                .First();
+
+            return plants.FirstOrDefault(p => p.PlantId == latestRecord.PlantId);
+        }
+        //*****************************************************************************
+
     }
 }
