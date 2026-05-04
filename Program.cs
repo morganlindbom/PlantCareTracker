@@ -124,33 +124,22 @@ namespace PlantCareTracker
 
             static void AddPlant(PlantService plantService)
             /*
-            Adds a new plant to the system.
-
-            This function collects user input, validates it,
-            creates a new Plant object, and sends it to the service.
+            Collects validated input and sends it to the service.
             */
             {
-                Console.Write("Name: ");
-                string name = Console.ReadLine();
+                string name = ReadRequiredInput("Name");
+                string location = ReadRequiredInput("Location");
+                int days = ReadIntInput("Watering days");
 
-                Console.Write("Location: ");
-                string location = Console.ReadLine();
-
-                Console.Write("Watering days: ");
-                if (!int.TryParse(Console.ReadLine(), out int days) || days < 1)
+                try
                 {
-                    Console.WriteLine("\nInvalid input\n");
-                    return;
+                    plantService.AddPlant(name, location, days);
+                    Console.WriteLine("\nPlant added\n");
                 }
-
-                plantService.AddPlant(new Plant
+                catch (Exception ex)
                 {
-                    Name = name,
-                    Location = location,
-                    WateringDays = days
-                });
-
-                Console.WriteLine("\nPlant added\n");
+                    Console.WriteLine($"\nError: {ex.Message}\n");
+                }
             }
             //*****************************************************************************
             // ViewPlants()
@@ -321,6 +310,51 @@ namespace PlantCareTracker
 
                 return text.PadLeft(padLeft).PadRight(width);
             }
+            //*****************************************************************************
+            //*****************************************************************************
+            // ReadRequiredInput()
+
+            static string ReadRequiredInput(string label)
+            /*
+            Reads a required string input from the user.
+
+            Ensures the input is not empty or whitespace.
+            */
+            {
+                while (true)
+                {
+                    Console.Write($"{label}: ");
+                    string input = Console.ReadLine();
+
+                    if (!string.IsNullOrWhiteSpace(input))
+                        return input;
+
+                    Console.WriteLine("Input cannot be empty. Try again.");
+                }
+            }
+            //*****************************************************************************
+            // ReadIntInput()
+
+            static int ReadIntInput(string label)
+            /*
+            Reads a valid integer input from the user.
+
+            Ensures the value is a number greater than 0.
+            */
+            {
+                while (true)
+                {
+                    Console.Write($"{label}: ");
+                    string input = Console.ReadLine();
+
+                    if (int.TryParse(input, out int value) && value > 0)
+                        return value;
+
+                    Console.WriteLine("Invalid number. Enter a value greater than 0.");
+                }
+            }
+            //*****************************************************************************
+
 
 
         }

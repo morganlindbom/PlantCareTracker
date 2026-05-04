@@ -47,9 +47,30 @@ namespace PlantCareTracker.Services
             return plants;
         }
 
-        public void AddPlant(Plant plant)
+        // AddPlant()
+
+        public void AddPlant(string name, string location, int wateringDays)
+        /*
+        Creates and adds a new plant.
+
+        This method is responsible for creating the Plant object,
+        assigning an ID, and storing it in the list.
+        */
         {
-            plant.PlantId = GeneratePlantId();
+            if (string.IsNullOrWhiteSpace(name))
+                throw new ArgumentException("Name cannot be empty.");
+
+            if (wateringDays < 1)
+                throw new ArgumentException("Watering days must be at least 1.");
+
+            var plant = new Plant
+            {
+                PlantId = GeneratePlantId(),
+                Name = name,
+                Location = location,
+                WateringDays = wateringDays
+            };
+
             plants.Add(plant);
         }
 
