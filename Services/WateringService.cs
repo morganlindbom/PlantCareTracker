@@ -57,26 +57,28 @@ namespace PlantCareTracker.Services
 
         public void ShowReminders()
         /*
-        Displays watering status for all plants.
+        Displays advanced watering reminders grouped by urgency.
 
-        For each plant:
-        - Finds last watering date
-        - Calculates days since watering
-        - Uses NeedsWater() to determine status
-        - Outputs formatted UI
+        Categories:
+        - Overdue (> 2 days late)
+        - Due Today (0–2 days late)
+        - Upcoming (within next 2 days)
+
+        This improves usability by helping the user prioritize actions.
         */
         {
             if (!plants.Any())
             {
-                Console.WriteLine("No plants available.");
+                Console.WriteLine(ConsoleHelper.CenterText("No plants available.", 40));
                 return;
             }
 
             const int width = 40;
+            var now = DateTime.Now;
 
-            Console.WriteLine();
-            Console.WriteLine(ConsoleHelper.CenterText("--- Watering Status ---", width));
-            Console.WriteLine(new string('-', width));
+            var overdue = new List<Plant>();
+            var dueToday = new List<Plant>();
+            var upcoming = new List<Plant>();
 
             foreach (var plant in plants)
             {
@@ -85,33 +87,55 @@ namespace PlantCareTracker.Services
                     .OrderByDescending(r => r.Date)
                     .FirstOrDefault();
 
-                DateTime? lastDate = last?.Date;
-
-                Console.WriteLine(ConsoleHelper.CenterText($"{plant.Name} ({plant.Location})", width));
-
-                if (lastDate == null)
+                if (last == null)
                 {
-                    Console.WriteLine(ConsoleHelper.CenterText("Last watered: Never", width));
-                    Console.WriteLine(ConsoleHelper.CenterText("Status: Needs water 💧", width));
-                    Console.WriteLine(new string('-', width));
+                    // Never watered → treat as overdue
+                    overdue.Add(plant);
                     continue;
                 }
 
-                int daysSince = (DateTime.Now - lastDate.Value).Days;
-                string dayText = daysSince == 1 ? "day" : "days";
+                var nextDate = last.Date.AddDays(plant.WateringDays);
+                var diff = (now - nextDate).TotalDays;
 
-                Console.WriteLine(ConsoleHelper.CenterText($"Last watered: {daysSince} {dayText} ago", width));
-
-                if (plant.NeedsWater(lastDate))
+                if (diff > 2)
                 {
-                    Console.WriteLine(ConsoleHelper.CenterText("Status: Needs water 💧", width));
+                    overdue.Add(plant);
                 }
-                else
+                else if (diff >= 0)
                 {
-                    Console.WriteLine(ConsoleHelper.CenterText("Status: OK 👍", width));
+                    dueToday.Add(plant);
                 }
+                else if (diff >= -2)
+                {
+                    upcoming.Add(plant);
+                }
+            }
 
-                Console.WriteLine(new string('-', width));
+            Console.WriteLine();
+            Console.WriteLine(ConsoleHelper.CenterText("--- Overdue ---", width));
+            Console.WriteLine(new string('-', width));
+
+            foreach (var p in overdue)
+            {
+                Console.WriteLine(ConsoleHelper.CenterText($"{p.PlantId} | {p.Name} | {p.Location}", width));
+            }
+
+            Console.WriteLine();
+            Console.WriteLine(ConsoleHelper.CenterText("--- Due Today ---", width));
+            Console.WriteLine(new string('-', width));
+
+            foreach (var p in dueToday)
+            {
+                Console.WriteLine(ConsoleHelper.CenterText($"{p.PlantId} | {p.Name} | {p.Location}", width));
+            }
+
+            Console.WriteLine();
+            Console.WriteLine(ConsoleHelper.CenterText("--- Upcoming ---", width));
+            Console.WriteLine(new string('-', width));
+
+            foreach (var p in upcoming)
+            {
+                Console.WriteLine(ConsoleHelper.CenterText($"{p.PlantId} | {p.Name} | {p.Location}", width));
             }
 
             Console.WriteLine();
@@ -175,7 +199,6 @@ namespace PlantCareTracker.Services
                 .FirstOrDefault();
         }
 
-
         public double GetAverageWateringInterval()
         /*
         Calculates the average watering interval across all plants.
@@ -191,6 +214,5 @@ namespace PlantCareTracker.Services
 
             return plants.Average(p => p.WateringDays);
         }
-
     }
 }

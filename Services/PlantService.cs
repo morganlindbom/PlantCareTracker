@@ -86,29 +86,17 @@ namespace PlantCareTracker.Services
                 .ToList();
         }
         //*****************************************************************************
-        // GetPlantsByType()
-
         public List<Plant> GetPlantsByType(string type)
         /*
-        Returns all plants matching a specific type.
+        Returns all plants matching a given type.
+
+        Uses case-insensitive comparison to improve usability.
         */
         {
             return plants
                 .Where(p => p.Type != null &&
                             p.Type.Equals(type, StringComparison.OrdinalIgnoreCase))
                 .ToList();
-        }
-        //*****************************************************************************
-        // CountByType()
-
-        public Dictionary<string, int> CountByType()
-        /*
-        Counts how many plants exist for each type.
-        */
-        {
-            return plants
-                .GroupBy(p => p.Type)
-                .ToDictionary(g => g.Key, g => g.Count());
         }
         //*****************************************************************************
         // UpdateHealth()
@@ -137,6 +125,24 @@ namespace PlantCareTracker.Services
             return plants
                 .Where(p => p.HealthStatus == HealthStatus.Struggling)
                 .ToList();
+        }
+        //*****************************************************************************
+        // CountPlantsByType
+
+        public Dictionary<string, int> CountPlantsByType()
+        /*
+        Counts how many plants exist for each type.
+
+        Groups plants by their Type property and returns
+        a dictionary where:
+        - Key = Type
+        - Value = Number of plants
+        */
+        {
+            return plants
+                .Where(p => !string.IsNullOrWhiteSpace(p.Type))
+                .GroupBy(p => p.Type)
+                .ToDictionary(g => g.Key, g => g.Count());
         }
         //*****************************************************************************
 
