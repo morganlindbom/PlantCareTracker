@@ -4,6 +4,7 @@ using PlantCareTracker.Models;
 using PlantCareTracker.Services;
 using PlantCareTracker.Utils;
 using System.IO;
+using System.Numerics;
 using System.Text.Json;
 
 namespace PlantCareTracker
@@ -54,6 +55,7 @@ namespace PlantCareTracker
             Console.WriteLine("8. Update plant health");
             Console.WriteLine("9. View struggling plants");
             Console.WriteLine("10. Most recently watered plant");
+            Console.WriteLine("11. Next plant to water");
             Console.WriteLine("0 Exit");
         }
         //*****************************************************************************
@@ -127,6 +129,10 @@ namespace PlantCareTracker
 
                 case "10":
                     ShowMostRecentlyWatered(wateringService);
+                    break;
+
+                case "11":
+                    ShowNextPlantToWater(wateringService);
                     break;
 
                 case "0":
@@ -402,10 +408,47 @@ namespace PlantCareTracker
                 return;
             }
 
-            Console.WriteLine("\n--- Most Recently Watered ---\n");
+            const int width = 37;
+
+            Console.WriteLine();
+            Console.WriteLine($"{ConsoleHelper.CenterText("--- Most Recently Watered ---", width)}");
+            Console.WriteLine();
 
             Console.WriteLine(
-                $"{plant.PlantId} | {plant.Name} | {plant.Location}"
+                $"{ConsoleHelper.CenterText(plant.PlantId, 10)} | " +
+                $"{ConsoleHelper.CenterText(plant.Name, 12)} | " +
+                $"{ConsoleHelper.CenterText(plant.Location, 12)} |"
+            );
+
+            Console.WriteLine();
+        }
+        //*****************************************************************************
+        //*****************************************************************************
+        // ShowNextPlantToWater()
+
+        static void ShowNextPlantToWater(WateringService wateringService)
+        /*
+        Displays the plant that should be watered next.
+        */
+        {
+            var plant = wateringService.GetNextPlantToWater();
+
+            if (plant == null)
+            {
+                Console.WriteLine("\nNo plants available\n");
+                return;
+            }
+
+            const int width = 37;
+
+            Console.WriteLine();
+            Console.WriteLine($"{ConsoleHelper.CenterText("--- Next Plant To Water ---", width)}");
+            Console.WriteLine();
+
+            Console.WriteLine(
+                $"{ConsoleHelper.CenterText(plant.PlantId, 10)} | " +
+                $"{ConsoleHelper.CenterText(plant.Name, 12)} | " +
+                $"{ConsoleHelper.CenterText(plant.Location, 12)} |"
             );
 
             Console.WriteLine();

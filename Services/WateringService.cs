@@ -1,5 +1,8 @@
 ﻿// WateringService.cs
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using PlantCareTracker.Models;
 using PlantCareTracker.Utils;
 
@@ -17,6 +20,14 @@ namespace PlantCareTracker.Services
         }
 
         public bool LogWatering(string plantId, string notes)
+        /*
+        Logs a watering event for a plant.
+
+        Searches for the plant using its ID and creates a new
+        WateringRecord with the current timestamp.
+
+        Returns false if the plant does not exist.
+        */
         {
             var plant = plants.FirstOrDefault(p => p.PlantId == plantId);
 
@@ -34,13 +45,25 @@ namespace PlantCareTracker.Services
         }
 
         public List<WateringRecord> GetAllLogs()
+        /*
+        Returns all watering records.
+
+        In a larger system, this could return a copy instead
+        of the original list to prevent modification.
+        */
         {
             return records;
         }
 
         public void ShowReminders()
         /*
-        Displays detailed watering reminders with consistent layout.
+        Displays watering status for all plants.
+
+        For each plant:
+        - Finds last watering date
+        - Calculates days since watering
+        - Uses NeedsWater() to determine status
+        - Outputs formatted UI
         */
         {
             if (!plants.Any())
@@ -93,12 +116,13 @@ namespace PlantCareTracker.Services
 
             Console.WriteLine();
         }
-        //*****************************************************************************
-        // GetMostRecentlyWateredPlant()
 
         public Plant? GetMostRecentlyWateredPlant()
         /*
-        Returns the plant that was watered most recently.
+        Returns the most recently watered plant.
+
+        Finds the latest WateringRecord and maps it
+        back to the corresponding Plant.
         */
         {
             if (!records.Any())
@@ -110,7 +134,45 @@ namespace PlantCareTracker.Services
 
             return plants.FirstOrDefault(p => p.PlantId == latestRecord.PlantId);
         }
-        //*****************************************************************************
 
+        public Plant? GetNextPlantToWater()
+        /*
+        Returns the plant closest to its next watering time.
+
+        Uses the next watering date for each plant and compares the time
+        distance to now. Overdue plants are treated as due now so they do
+        not dominate the result with extreme overdue bias.
+        */
+        {
+            if (!plants.Any())
+                return null;
+
+            var now = DateTime.Now;
+
+            var plantData = plants.Select(p =>
+            {
+                var last = records
+                    .Where(r => r.PlantId == p.PlantId)
+                    .OrderByDescending(r => r.Date)
+                    .FirstOrDefault();
+
+                var nextDate = last == null ? now : last.Date.AddDays(p.WateringDays);
+                var timeUntilNext = nextDate > now ? nextDate - now : TimeSpan.Zero;
+
+                return new
+                {
+                    Plant = p,
+                    NextDate = nextDate,
+                    TimeUntilNext = timeUntilNext
+                };
+            });
+
+            return plantData
+                .OrderBy(x => x.TimeUntilNext)
+                .ThenBy(x => x.NextDate)
+                .ThenBy(x => x.Plant.PlantId)
+                .Select(x => x.Plant)
+                .FirstOrDefault();
+        }
     }
 }
