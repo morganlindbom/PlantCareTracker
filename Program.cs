@@ -56,6 +56,7 @@ namespace PlantCareTracker
             Console.WriteLine("9. View struggling plants");
             Console.WriteLine("10. Most recently watered plant");
             Console.WriteLine("11. Next plant to water");
+            Console.WriteLine("12. Average watering interval");
             Console.WriteLine("0 Exit");
         }
         //*****************************************************************************
@@ -133,6 +134,10 @@ namespace PlantCareTracker
 
                 case "11":
                     ShowNextPlantToWater(wateringService);
+                    break;
+
+                case "12":
+                    ShowAverageWatering(wateringService);
                     break;
 
                 case "0":
@@ -449,6 +454,30 @@ namespace PlantCareTracker
                 $"{ConsoleHelper.CenterText(plant.PlantId, 10)} | " +
                 $"{ConsoleHelper.CenterText(plant.Name, 12)} | " +
                 $"{ConsoleHelper.CenterText(plant.Location, 12)} |"
+            );
+
+            Console.WriteLine();
+        }
+        //*****************************************************************************
+        // ShowAverageWatering()
+
+        static void ShowAverageWatering(WateringService wateringService)
+        /*
+        Displays the average watering interval.
+        */
+        {
+            double avg = wateringService.GetAverageWateringInterval();
+            const int width = 37;
+
+            Console.WriteLine();
+            Console.WriteLine($"{ConsoleHelper.CenterText("--- Average Watering Interval ---", width)}");
+            Console.WriteLine();
+
+            Console.WriteLine(
+                ConsoleHelper.CenterText(
+                    $"Average: {avg.ToString("F1", System.Globalization.CultureInfo.InvariantCulture)} days",
+                    width
+                )
             );
 
             Console.WriteLine();

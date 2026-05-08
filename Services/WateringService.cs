@@ -174,5 +174,23 @@ namespace PlantCareTracker.Services
                 .Select(x => x.Plant)
                 .FirstOrDefault();
         }
+
+
+        public double GetAverageWateringInterval()
+        /*
+        Calculates the average watering interval across all plants.
+
+        This method computes the mean value of the WateringDays property
+        for all plants in the system.
+
+        Returns 0 if no plants exist.
+        */
+        {
+            if (!plants.Any())
+                return 0;
+
+            return plants.Average(p => p.WateringDays);
+        }
+
     }
 }
